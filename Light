@@ -1,0 +1,66 @@
+/*
+  Copyright (C) 2014 Alik <aliktab@gmail.com> All rights reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
+#include "BH1750.h"
+BH1750 sensor(0x23, Wire);
+double lightLevel = 0;
+double priorLightLevel = 0;
+int test;
+int diffInSun(double priorLight, double light)
+  {
+      //terrarium has thus moved from no sunlight to sunlight
+      if (light >= 1500 and priorLight < 1500)
+      {
+          return 1;
+      }
+      //terrarium has moved from sunlight to no sunlight
+      else if (light <1500 and priorLight >=1500)
+      {
+          return 2;
+      }
+      else
+      {
+          return 0;
+      }
+  }
+
+void setup()
+{
+    Particle.variable("test", &test, INT);
+  sensor.begin();
+
+  sensor.set_sensor_mode(BH1750::forced_mode_high_res2);
+
+  Serial.begin();
+}
+
+void loop()
+{
+    
+    sensor.make_forced_measurement();
+    priorLightLevel = lightLevel;
+    lightLevel = sensor.get_light_level();
+    //printing to console isn't necessary I just used it to test if things were working
+    Serial.println(String::format("%f", lightLevel));
+    test = diffInSun(priorLightLevel, lightLevel);
+    //same thing here I only printed for testing purposes
+    Serial.println(test);
+  
+
+  delay(30000);
+}
