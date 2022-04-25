@@ -24,6 +24,8 @@ int test;
 int diffInSun(double priorLight, double light)
   {
       //terrarium has thus moved from no sunlight to sunlight
+      //I just held the sensor near an open window with the sun out to determine what light level to use when determining what counted as being in the
+      //sunlight in my code.
       if (light >= 1500 and priorLight < 1500)
       {
           return 1;
